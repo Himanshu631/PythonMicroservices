@@ -1,0 +1,9 @@
+Installing flask-mysqldb
+
+Solved by ->
+
+1) sudo apt-get install libmysqlclient-dev
+
+2) pip install mysqlclient --no-binary=mysqlclient
+
+3) pip install flask_mysqldb 

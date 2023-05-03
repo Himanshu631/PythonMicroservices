@@ -1,17 +1,17 @@
-from flask import Flask, render_template
-from flask_login import UserMixin
-from flask_sqlalchemy import SQLAlchemy
+import jwt, datetime, os
+from flask_mysqldb import MySQL
+from flask import Flask, render_template, request
 
 
 app = Flask(__name__)
-db = SQLAlchemy(app)
-app.config['SQLAlchemy_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SECRET_KEY'] = 'thisisasecret'
+mysql = MySQL(app)
 
-class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    password = db.Column(db.String(80), nullable=False)
+# config
+app.config["MYSQL_HOST"] = os.environ.get("MYSQL_HOST")
+app.config["MYSQL_USER"] = os.environ.get("MYSQL_USER")
+app.config["MYSQL_PASSWORD"] = os.environ.get("MYSQL_PASSWORD")
+app.config["MYSQL_DB"] = os.environ.get("MYSQL_DB")
+app.config["MYSQL_PORT"] = os.environ.get("MYSQL_PORT")
 
 
 @app.route('/')
@@ -19,13 +19,22 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/login')
+@app.route('/login', methods=["POST"])
 def login():
-    return render_template('login.html')
+    auth = request.authorization
+    if not auth:
+        return "missing credentials", 401
+
+    cur = mysql.connection.cursor()
+    res = cur.execute(
+        "SELECT email,password FROM user WHERE email=%s", (auth.username,auth.password)
+    )
+
 
 @app.route('register')
 def register():
     return render_template('register.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
