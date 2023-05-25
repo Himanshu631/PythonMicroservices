@@ -9,3 +9,5 @@ This is a flask based application which use differnt microservices like -
 3) home-dashborad
 4) notification
 5) search
+
+It will be deployed using kubernetes
